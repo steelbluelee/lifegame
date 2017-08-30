@@ -27,7 +27,8 @@ dependencies {
     testCompile 'org.mockito:mockito-all:1.10.19+'
 
     testCompile 'org.powermock:powermock-module-junit4:1.7.1+'
-    testCompile 'org.powermock:powermock-api-mockito2:1.7.1+'
+    testCompile 'org.powermock:powermock-api-mockito:1.7.1+'
+    testCompile 'org.powermock:powermock-module-testng:1.7.1+'
 
     testCompile 'org.assertj:assertj-core:3.8.0+'
 }
@@ -39,4 +40,5 @@ task getDeps(type: Copy) {
 
 repositories {
     mavenCentral()
+    jcenter()
 }

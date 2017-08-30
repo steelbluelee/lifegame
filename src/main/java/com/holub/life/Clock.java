@@ -9,7 +9,6 @@ import java.util.TimerTask;
 import com.holub.ui.MenuSite;
 import com.holub.tools.Publisher;
 
-
 public class Clock {
     private Timer clock = new Timer();
     private TimerTask tick = null;
@@ -75,12 +74,13 @@ public class Clock {
                 }
             };
 
-        MenuSite.addLine(this, "Go", "Halt", modifier);
-        MenuSite.addLine(this, "Go", "Tick (Single Stop)", modifier);
-        MenuSite.addLine(this, "Go", "Agonizing", modifier);
-        MenuSite.addLine(this, "Go", "Slow", modifier);
-        MenuSite.addLine(this, "Go", "Medium", modifier);
-        MenuSite.addLine(this, "Go", "Fast", modifier);
+        MenuSite.instance()
+            .addLine(this, "Go", "Halt", modifier)
+            .addLine(this, "Go", "Tick (Single Stop)", modifier)
+            .addLine(this, "Go", "Agonizing", modifier)
+            .addLine(this, "Go", "Slow", modifier)
+            .addLine(this, "Go", "Medium", modifier)
+            .addLine(this, "Go", "Fast", modifier);
     }
 
     private Publisher publisher = new Publisher();
