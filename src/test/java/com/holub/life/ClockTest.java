@@ -7,34 +7,27 @@ public class ClockTest
 {
     Clock clock = Clock.instance();
 
+    Clock.Listener mockClockListener1 = Mockito.mock(Clock.Listener.class);
+    Clock.Listener mockClockListener2 = Mockito.mock(Clock.Listener.class);
+
+    @Before public void setUp()
+    {
+        clock.addClockListener(mockClockListener1);
+        clock.addClockListener(mockClockListener2);
+    }
+
     @Test
     public void test_tick()
     {
-        Clock.Listener mockClockLintenen1 = Mockito.mock(Clock.Listener.class);
-        Clock.Listener mockClockLintenen2 = Mockito.mock(Clock.Listener.class);
-
-        Clock clock = Clock.instance();
-
-        clock.addClockListener(mockClockLintenen1);
-        clock.addClockListener(mockClockLintenen2);
-
         clock.tick();
 
-        Mockito.verify(mockClockLintenen1).tick();
-        Mockito.verify(mockClockLintenen2).tick();
+        Mockito.verify(mockClockListener1).tick();
+        Mockito.verify(mockClockListener2).tick();
     }
 
     @Test
     public void test_startTicking()
     {
-        Clock.Listener mockClockLintenen1 = Mockito.mock(Clock.Listener.class);
-        Clock.Listener mockClockLintenen2 = Mockito.mock(Clock.Listener.class);
-
-        Clock clock = Clock.instance();
-
-        clock.addClockListener(mockClockLintenen1);
-        clock.addClockListener(mockClockLintenen2);
-
         clock.startTicking(5);
 
         try {
@@ -51,9 +44,9 @@ public class ClockTest
             e.printStackTrace();
         }
 
-        Mockito.verify(mockClockLintenen1, Mockito.atLeast(3)).tick();
-        Mockito.verify(mockClockLintenen1, Mockito.atMost(5)).tick();
-        Mockito.verify(mockClockLintenen2, Mockito.atLeast(3)).tick();
-        Mockito.verify(mockClockLintenen2, Mockito.atMost(5)).tick();
+        Mockito.verify(mockClockListener1, Mockito.atLeast(3)).tick();
+        Mockito.verify(mockClockListener1, Mockito.atMost(5)).tick();
+        Mockito.verify(mockClockListener2, Mockito.atLeast(3)).tick();
+        Mockito.verify(mockClockListener2, Mockito.atMost(5)).tick();
     }
 } 

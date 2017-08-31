@@ -31,31 +31,23 @@ public class PublisherTest {
         }
     }
 
-    Notifier source;
-    StringBuffer actualResults;
-    StringBuffer expectedResults;
-    Observer listener1;
-    Observer listener2;
+    Notifier source = new Notifier();
+    StringBuffer actualResults = new StringBuffer();
+    StringBuffer expectedResults = new StringBuffer();
+    Observer listener1 =
+                    new Observer() {
+                        public void notify(String arg) {
+                            actualResults.append("1[" + arg + "]");
+                        }
+                    };
+    Observer listener2 =
+                    new Observer() {
+                        public void notify(String arg) {
+                            actualResults.append("2[" + arg + "]");
+                        }
+                    };
 
     @Before public void setUp() {
-        source = new Notifier();
-
-        actualResults = new StringBuffer();
-        expectedResults = new StringBuffer();
-
-        listener1 =
-            new Observer() {
-                public void notify(String arg) {
-                    actualResults.append("1[" + arg + "]");
-                }
-            };
-        listener2 =
-            new Observer() {
-                public void notify(String arg) {
-                    actualResults.append("2[" + arg + "]");
-                }
-            };
-
         source.addObserver(listener1);
         source.addObserver(listener2);
     }
