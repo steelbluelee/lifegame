@@ -6,6 +6,8 @@ import java.awt.event.*;
 public class MenuSite {
     private MenuSite(){}
 
+    public static void establish(Object arg) {}
+
     private static MenuSite instance;
     public synchronized static MenuSite instance() {
         if (instance == null) {
