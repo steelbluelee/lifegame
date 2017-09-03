@@ -21,7 +21,7 @@ public class MenuSite
     private static Pattern shortcutExtractor =
         Pattern.compile(
                 "\\s*([^;]+?)\\s" // value
-                + "(;\\s*([^\\s].*?))?\\s*$" ); // ; shorttcut
+                + "(;\\s*([^\\s].*?))?\\s*$" ); // ; shortcut
 
     private static Pattern submenuExtractor =
         Pattern.compile(
@@ -219,11 +219,173 @@ public class MenuSite
         return (JMenu)child;
     }
 
+    private static JMenuItem getSubmenuByName( String name,
+            MenuElement[] contents )
+    {
+        JMenuItem found = null;
+        for( int i = 0; found == null && i < contents.length ; ++i )
+        {
+            /* 시스템은 빈 서브 메뉴의 경우에는 내부 팝업 메뉴를
+             * 생성한다. 이러한 경우 팝업의 내용에서 'name'을
+             * 찾아 본다.
+             * PopupMenu와 JMenuItem이 같은 인터페이스를 구현했다면,
+             * 이 작업이 훨씬 쉬었겠지만 아쉽게도 그렇지 않다.
+             * 클래스 어댑터(adapter)를 사용하여 이 둘이 공통의
+             * 인터페이스를 구현하고 있는 것처럼 보이게 할 수도 없다.
+             * JPopupWindows는 내가 아니라 스윙이 생성하기 때문이다. */
+
+            if( contents[i] instanceof JPopupMenu )
+                found = getSubmenuByName( name,
+                        ((JPopupMenu)contents[i]).getSubElements());
+            else if( ((JMenuItem)contents[i]).getName().equals( name ) )
+            {
+                found = (JMenuItem) contents[i];
+            }
+        }
+        return found;
+    }
+
+    private static void mapNames( URL table ) throws IOException
+    {
+        if( nameMap == null )
+            nameMap = new Properties();
+        nameMap.load( table.openStream() );
+    }
+
+    public static void addMapping( String name, String label,
+            String shortcut )
+    {
+        if( nameMap == null )
+            nameMap = new Properties();
+        nameMap.put( name, label + ";" + shortcut );
+    }
+
     private static void setLableAndShortcut( JMenuItem item )
     {
         String name = item.getName();
         if( name == null )
             return;
+        
+        String label;
+
+        if( nameMap != null
+            && (label = (String) (nameMap.get( name ))) != null )
+        {
+            Matcher m = shortcutExtractor.matcher( label );
+            if( !m.matches() ) // 잘못된 형식의 인풋 라인
+            {
+                item.setText( name );
+                Logger.getLogger( "com.holub.ui" ).warning(
+                        "Bad"
+                        + "name-to-label maep entry:"
+                        + "\n\tiput=[" + name + "=" + label + "]"
+                        + "\n\tSetting label to " + name );
+            }
+            else
+            {
+                item.setText( m.group(1) );
+
+                String shortcut = m.group(3);
+
+                if( shortcut != null )
+                {
+                    if( shortcut.length() == 1 )
+                    {
+                        item.setAccelerator(
+                                KeyStroke.getKeyStroke(
+                                    shortcut.toUpperCase().charAt(0),
+                                    Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(),
+                                    false ));
+                    }
+                    else
+                    {
+                        KeyStroke key = KeyStroke.getKeyStroke( shortcut );
+                        if( key != null )
+                            item.setAccelerator( key );
+                        else
+                        {
+                            Logger.getLogger( "com.holub.ui" ).warning(
+                                    "Malformed shortcut parent spectification "
+                                    + "in MenuSite map file: "
+                                    + shortcut );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static Collection menusAddedBy( Object requester )
+    {
+        assert requester != null: "Bad argument";
+        assert requesters != null: "No requesters";
+        assert valid();
+
+        Collection menus = (Collection) (requesters.get( requester ));
+        if( menus == null )
+        {
+            menus = new LinkedList();
+            requesters.put( requester, menus );
+        }
+        return menus;
+    }
+
+    private static final class Item
+    {
+        // private JMenuItem item;
+        private  Component item;
+
+        private String parentSpecification; // JMenu 혹은 JMenuItem의 부모
+        private MenuElement parent; // JMenu 혹은 JMenuBar
+        private boolean isHelpMenu;
+
+        public String toString()
+        {
+            StringBuffer b = new StringBuffer( parentSpecification );
+            if( item instanceof JMenuItem )
+            {
+                JMenuItem i = (JMenuItem) item;
+                b.append( ":" );
+                b.append( i.getName() );
+                b.append( " (" );
+                b.append( i.getText() );
+                b.append( ")" );
+            }
+            return b.toString();
+        }
+
+        private boolean valid()
+        {
+            assert item != null : "item is null";
+            assert parent != null : "parent is null";
+            return true;
+        }
+
+        public Item( Component item, MenuElement parent,
+                String parentSpecification )
+        {
+            assert parent != null;
+            assert parent instanceof JMenu || parent instanceof JMenuBar
+                : "Parent must be JMenu or JMenuBar";
+
+            this.item = item;
+            this.parent = parent;
+            this.parentSpecification = parentSpecification;
+            this.isHelpMenu =
+                ( item instanceof JMenuItem )
+                && ( item.getName().compareToIgnoreCase( "help" ) == 0);
+            assert valid();
+        }
+
+        public boolean specifiedBy( String specifier )
+        {
+            return parentSpecification.equals( specifier );
+        }
+
+        public Component item()
+        {
+            return item;
+        }
     }
 
 } 
