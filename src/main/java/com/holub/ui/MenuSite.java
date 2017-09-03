@@ -386,6 +386,122 @@ public class MenuSite
         {
             return item;
         }
+
+        public final void attachYourselfToYourParent()
+        {
+            assert valid();
+
+            if( parent instanceof JMenu )
+            {
+                ((JMenu) parent).add( item );
+            }
+            else if( menuBarContents.size() <= 0 )
+            {
+                menuBarContents.add( this );
+                ((JMenuBar) parent).add( item );
+            }
+            else
+            {
+                Item last = (Item) (menuBarContents.getLast());
+                if( !last.isHelpMenu )
+                {
+                    menuBarContents.addLast( this );
+                    ((JMenuBar) parent).add( item );
+                }
+                else // help 메뉴를 삭제하고 새로운
+                {    // 아이템을 추가한다. 그 후 help 메뉴를
+                     // 다시 넣는다.
+                    
+                    menuBarContents.removeLast();
+                    menuBarContents.add( this );
+                    menuBarContents.add( last );
+
+                    if( parent == menuBar )
+                        parent = regenerateMenuBar();
+                }
+            }
+        }
+
+        public void detachYourselfFromYourParent()
+        {
+            assert valid();
+
+            if( parent instanceof JMenu )
+            {
+                ((JMenu) parent).remove( item );
+            }
+            else // parent의 메뉴 바
+            {
+                menuBar.remove( item );
+                menuBarContents.remove( this );
+                regenerateMenuBar(); // whithour me on it
+
+                parent = null;
+            }
+        }
+
+        public void setEnableAttribute( boolean on )
+        {
+            if( item instanceof JMenuItem )
+            {
+                JMenuItem item = (JMenuItem) this.item;
+                item.setEnabled( on );
+            }
+        }
+
+        private JMenuBar regenerateMenuBar()
+        {
+            assert valid();
+
+            // 새로운 메뉴 바를 생성하고 현재의 컨텐츠 리스트를
+            // 추가한다.
+            
+            menuBar = new JMenuBar();
+            ListIterator i = menuBarContents.listIterator( 0 );
+            while( i.hasNext() )
+                menuBar.add( ((Item) (i.next())).item );
+
+            // 이전 메뉴 바를 새로운 메뉴 바로 교체한다.
+            // setVisible 호출은 메뉴 바를 다시 그리도록 한다.
+            // setVisible을 호출하지 않으면 메뉴 바를 다시 그리지
+            // 않게 된다.
+
+            menuFrame.setJMenuBar( menuBar );
+            menuFrame.setVisible( true );
+            return menuBar;
+        }
     }
 
+    private static class Debug
+    {
+        public interface Visitor
+        {
+            public void visit( JMenu e, int depth );
+        }
+
+        private static int traversalDepth = 1;
+
+        public static void visitPostorder( MenuElement me, Visitor v )
+        {
+            // 만약 실제 타입이 (JMenu와 같은 JMenuItem 상속체가 아닌)
+            // JMenuItem이라면 이는 리프 노드이며,
+            // 자식을 갖고 있지 않다.
+
+            if( me.getClass() != JMenuItem.class )
+            {
+                MenuElement[] contents = me.getSubElements();
+                for( int i = 0; i < contents.length; ++i )
+                {
+                    if( contents[i].getClass() != JMenuItem.class )
+                    {
+                        ++traversalDepth;
+                        visitPostorder( contents[i], v );
+                        if( !(contents[i] instanceof JPopupMenu) )
+                            v.visit( (JMenu) contents[i], traversalDepth);
+                        --traversalDepth;
+                    }
+                }
+            }
+        }
+    }
 } 
