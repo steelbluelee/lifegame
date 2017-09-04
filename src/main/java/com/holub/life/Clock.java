@@ -66,7 +66,8 @@ public class Clock {
                     if (toDo == 'T') {
                         tick();
                     } else {
-                        startTicking( toDo == 'A' ? 500 : // 매우 느림
+                        startTicking(
+                                toDo == 'A' ? 500 : // 매우 느림
                                 toDo == 'S' ? 150 : // 느림
                                 toDo == 'M' ? 70  : // 중간
                                 toDo == 'F' ? 30  : 0 ); // 빠름
@@ -74,13 +75,12 @@ public class Clock {
                 }
             };
 
-        MenuSite.instance()
-            .addLine(this, "Go", "Halt", modifier)
-            .addLine(this, "Go", "Tick (Single Stop)", modifier)
-            .addLine(this, "Go", "Agonizing", modifier)
-            .addLine(this, "Go", "Slow", modifier)
-            .addLine(this, "Go", "Medium", modifier)
-            .addLine(this, "Go", "Fast", modifier);
+            MenuSite.addLine(this, "Go", "Halt", modifier);
+            MenuSite.addLine(this, "Go", "Tick (Single Stop)", modifier);
+            MenuSite.addLine(this, "Go", "Agonizing", modifier);
+            MenuSite.addLine(this, "Go", "Slow", modifier);
+            MenuSite.addLine(this, "Go", "Medium", modifier);
+            MenuSite.addLine(this, "Go", "Fast", modifier);
     }
 
     private Publisher publisher = new Publisher();

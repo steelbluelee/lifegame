@@ -14,7 +14,8 @@ public class MenuSite
     private static JFrame menuFrame = null;
     private static JMenuBar menuBar = null;
 
-    private static Map requesters = new HashMap();
+    private static Map<Object, LinkedList<Item>> requesters =
+        new HashMap<Object, LinkedList<Item>>();
 
     private static Properties nameMap;
 
@@ -32,8 +33,8 @@ public class MenuSite
                 + "(?::(.*?))?"
                 + "(?::(.*?))?" );
 
-    private static final LinkedList menuBarContents =
-        new LinkedList();
+    private static final LinkedList<Item> menuBarContents =
+        new LinkedList<Item>();
 
     private MenuSite(){}
 
@@ -66,7 +67,7 @@ public class MenuSite
             String name,
             ActionListener listener )
     {
-        assert requester !=: "null requester";
+        assert requester != "null requester";
         assert name != "null item";
         assert toThisMenu != null: "null toThisMenu";
         assert valid();
@@ -109,14 +110,15 @@ public class MenuSite
             throw new IllegalArgumentException( "null requester" );
         assert valid();
 
-        Collection allItems = (Collection)( requesters.remove( requester ));
+        Collection<Item> allItems =
+            (Collection<Item>)( requesters.remove( requester ));
 
         if( allItems != null )
         {
-            Iterator i = allItems.iterator();
+            Iterator<Item> i = allItems.iterator();
             while( i.hasNext() )
             {
-                Item current = (Item) i.next();
+                Item current = i.next();
                 current.detachYourselfFromYourParent();
             }
         }
@@ -127,14 +129,15 @@ public class MenuSite
         assert requester != null;
         assert valid();
 
-        Collection allItems = (Collection)( requesters.get( requester ));
+        Collection<Item> allItems =
+            (Collection<Item>)( requesters.get( requester ));
 
         if( allItems != null )
         {
-            Iterator i = allItems.iterator();
+            Iterator<Item> i = allItems.iterator();
             while( i.hasNext() )
             {
-                Item current = (Item) i.next();
+                Item current = i.next();
                 current.setEnableAttribute( enable );
             }
 
@@ -148,14 +151,15 @@ public class MenuSite
         assert menuSpecifier != null;
         assert valid();
 
-        Collection allItems = (Collection) ( requesters.get( requester ) );
+        Collection<Item> allItems =
+            (Collection<Item>) ( requesters.get( requester ) );
 
         if( allItems != null )
         {
-            Iterator i = allItems.iterator();
+            Iterator<Item> i = allItems.iterator();
             while( i.hasNext() )
             {
-                Item current = (Item) i.next();
+                Item current = i.next();
                 if( current.specifiedBy( menuSpecifier ) )
                 {
                     if( current.item() instanceof JSeparator )
@@ -164,7 +168,7 @@ public class MenuSite
                     if( name == null && current.item() instanceof JMenu )
                         return (JMenu)( current.item() );
 
-                    if(( (JMenuItem)current.item()).getName().equals( name ))
+                    if(((JMenuItem) current.item()).getName().equals( name ))
                         return (JMenuItem) current.item();
                 }
             }
@@ -195,7 +199,7 @@ public class MenuSite
 
         for( int i = 1; (childName = m.group(i++)) != null; parent = child)
         {
-            child = getSubmenuByName( childName, parent.getComponent() );
+            child = getSubmenuByName( childName, parent.getSubElements() );
 
             if( child != null )
             {
@@ -210,8 +214,8 @@ public class MenuSite
                 setLableAndShortcut( child );
 
                 Item item = new Item( child, parent, menuSpecifier );
-                menuAddedBy( requester ).add( item );
-                item.attatchYourselfToYourParent();
+                menusAddedBy( requester ).add( item );
+                item.attachYourselfToYourParent();
 
             }
         }
@@ -315,19 +319,19 @@ public class MenuSite
         }
     }
 
-    private static Collection menusAddedBy( Object requester )
+    private static Collection<Item> menusAddedBy( Object requester )
     {
         assert requester != null: "Bad argument";
         assert requesters != null: "No requesters";
         assert valid();
 
-        Collection menus = (Collection) (requesters.get( requester ));
+        LinkedList<Item> menus =  requesters.get( requester );
         if( menus == null )
         {
-            menus = new LinkedList();
+            menus = new LinkedList<Item>();
             requesters.put( requester, menus );
         }
-        return menus;
+        return (Collection<Item>) menus;
     }
 
     private static final class Item
@@ -457,7 +461,7 @@ public class MenuSite
             // 추가한다.
             
             menuBar = new JMenuBar();
-            ListIterator i = menuBarContents.listIterator( 0 );
+            ListIterator<Item> i = menuBarContents.listIterator( 0 );
             while( i.hasNext() )
                 menuBar.add( ((Item) (i.next())).item );
 
