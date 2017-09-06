@@ -40,7 +40,7 @@ public class Clock {
             tick.cancel();
             tick = null;
         }
-
+        
         if ( millisecondsBetweenTicks > 0 ) {
             tick = new TimerTask() {
                 public void run() { tick(); }
