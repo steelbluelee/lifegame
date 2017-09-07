@@ -2,50 +2,59 @@ package com.holub.ui;
 
 import org.junit.*;
 import org.mockito.Mockito;
-import org.mockito.*;
-import java.awt.*;
+import static org.assertj.core.api.Assertions.*;
+/* import org.mockito.*;
+ * import java.awt.*; */
 import java.awt.event.*;
 import javax.swing.*;
 
+import com.holub.testhelper.*;
+
 public class MenuSiteTest
 {
-    class MockFrame extends JFrame
-    {
-        MockFrame()
-        {
-            setSize(400, 200);
-            addWindowListener(new WindowAdapter()
-            {
-                public void windowClosing(WindowEvent e)
-                {
-                    System.exit(1);
-                }
-            });
-        }
+    JFrame mockFrame;
 
-        private static final long serialVersionUID = 1L;
+    @Before
+    public void setUp()
+    {
+        mockFrame = new MockJFrame();
+        MenuSite.establish(mockFrame);
+
+    }
+
+    @After
+    public void tearDrop()
+    {
+        MenuSite.unestablish();
     }
 
     @Test
     public void test_addLine()
     {
-        JFrame mockFrame = new MockFrame();
-        MenuSite.establish( mockFrame );
-        ActionListener mockMenuListener = Mockito.mock( ActionListener.class );
-        Mockito.doNothing()
-            .when( mockMenuListener )
-            .actionPerformed( Mockito.isA( ActionEvent.class ) );
-        ActionEvent mockActionEvent = Mockito.mock( ActionEvent.class );
 
-        MenuSite.addLine( mockFrame, "Go", "Test", mockMenuListener);
+        ActionListener mockMenuListener = Mockito.mock(ActionListener.class);
+        Mockito.doNothing().when(mockMenuListener).actionPerformed(Mockito.isA(ActionEvent.class));
+        ActionEvent mockActionEvent = Mockito.mock(ActionEvent.class);
 
-       ((JMenuItem) (mockFrame.getJMenuBar().getMenu( 0 ).getMenuComponent( 0 )))
-           .getActionListeners()[0]
-           .actionPerformed( mockActionEvent );
+        MenuSite.addLine(mockFrame, "Go", "Test", mockMenuListener);
 
-        Mockito.verify(mockMenuListener)
-            .actionPerformed( Mockito.isA( ActionEvent.class ) );
+        ((JMenuItem) (mockFrame.getJMenuBar().getMenu(0).getMenuComponent(0))).getActionListeners()[0]
+                .actionPerformed(mockActionEvent);
+
+        Mockito.verify(mockMenuListener).actionPerformed(Mockito.isA(ActionEvent.class));
 
         MenuSite.unestablish();
     }
+
+    @Test(expected=java.lang.NullPointerException.class)
+    public void test_shouldBeNullAfterRemoveMenus()
+    {
+        ActionListener mockMenuListener = Mockito.mock(ActionListener.class);
+
+        MenuSite.addLine(mockFrame, "Go", "Test", mockMenuListener);
+        MenuSite.removeMyMenus(mockFrame);
+
+        ((JMenuItem) mockFrame.getJMenuBar().getMenu(0).getMenuComponent(0)).getText();
+    }
+
 }

@@ -50,6 +50,11 @@ public class MenuSite
 
     public synchronized static void unestablish()
     {
+        Iterator<Object> keys = requesters.keySet().iterator();
+        while ( keys.hasNext() )
+        {
+            removeMyMenus( keys.next() );
+        }
         menuFrame = null;
         menuBar = null;
         requesters = new HashMap<Object, LinkedList<Item>>();
