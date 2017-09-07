@@ -3,8 +3,6 @@ package com.holub.ui;
 import org.junit.*;
 import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.*;
-/* import org.mockito.*;
- * import java.awt.*; */
 import java.awt.event.*;
 import javax.swing.*;
 
