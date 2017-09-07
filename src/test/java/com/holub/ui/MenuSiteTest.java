@@ -13,6 +13,7 @@ import com.holub.testhelper.*;
 public class MenuSiteTest
 {
     JFrame mockFrame;
+    ActionListener mockMenuListener = Mockito.mock(ActionListener.class);
 
     @Before
     public void setUp()
@@ -31,8 +32,6 @@ public class MenuSiteTest
     @Test
     public void test_addLine()
     {
-
-        ActionListener mockMenuListener = Mockito.mock(ActionListener.class);
         Mockito.doNothing().when(mockMenuListener).actionPerformed(Mockito.isA(ActionEvent.class));
         ActionEvent mockActionEvent = Mockito.mock(ActionEvent.class);
 
@@ -42,19 +41,23 @@ public class MenuSiteTest
                 .actionPerformed(mockActionEvent);
 
         Mockito.verify(mockMenuListener).actionPerformed(Mockito.isA(ActionEvent.class));
-
-        MenuSite.unestablish();
     }
 
-    @Test(expected=java.lang.NullPointerException.class)
+    @Test(expected = java.lang.NullPointerException.class)
     public void test_shouldBeNullAfterRemoveMenus()
     {
-        ActionListener mockMenuListener = Mockito.mock(ActionListener.class);
-
         MenuSite.addLine(mockFrame, "Go", "Test", mockMenuListener);
         MenuSite.removeMyMenus(mockFrame);
 
         ((JMenuItem) mockFrame.getJMenuBar().getMenu(0).getMenuComponent(0)).getText();
     }
 
+    @Test
+    public void test_HelpShouldBeTheLastMenu()
+    {
+        MenuSite.addLine(mockFrame, "Help", "Help", mockMenuListener);
+        MenuSite.addLine(mockFrame, "Go", "Test", mockMenuListener);
+
+        assertThat(((JMenuItem) mockFrame.getJMenuBar().getMenu(1).getMenuComponent(0)).getText()).isEqualTo("Help");
+    }
 }
