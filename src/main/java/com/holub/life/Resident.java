@@ -12,5 +12,18 @@ import com.holub.life.Universe;
 
 public final class Resident implements Cell
 {
+    public void userClicked( Point here, Rectangle surface )
+    {
 
+    }
+
+    public int widthInCells()
+    {
+        return 8;
+    }
+
+    public void clear()
+    {
+
+    }
 }
