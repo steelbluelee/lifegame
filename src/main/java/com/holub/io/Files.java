@@ -31,26 +31,21 @@ public class Files
      * </PRE>
      */
 
-    public static File userSelected( final String startHere,
-            final String extension,
-            final String description,
-            final String selectButtonText ) throws FileNotFoundException
+    public static File userSelected( final String startHere, final String extension,
+            final String description, final String selectButtonText ) throws FileNotFoundException
     {
-        FileFilter filter =
-            new FileFilter()
+        FileFilter filter = new FileFilter()
+        {
+            public boolean accept( File f )
             {
-                public boolean accept( File f )
-                {
-                    return f.isDirectory()
-                        || ( extension != null
-                                && f.getName().endsWith( extension ) );
-                }
+                return f.isDirectory() || (extension != null && f.getName().endsWith( extension ));
+            }
 
-                public String getDescription()
-                {
-                    return description;
-                }
-            };
+            public String getDescription()
+            {
+                return description;
+            }
+        };
 
         JFileChooser chooser = new JFileChooser( startHere );
         chooser.setFileFilter( filter );
@@ -59,20 +54,23 @@ public class Files
         if( result == JFileChooser.APPROVE_OPTION )
             return chooser.getSelectedFile();
 
-        throw new FileNotFoundException( "No file selected by user");
+        throw new FileNotFoundException( "No file selected by user" );
     }
 
     static class Test
     {
         public static void main( String[] args )
         {
-            try {
-               File f = Files.userSelected(".", ".test", "Test File", "Select!");
-               System.out.println( "Selected " + f.getName() );
-            } catch(FileNotFoundException e){
+            try
+            {
+                File f = Files.userSelected( ".", ".test", "Test File", "Select!" );
+                System.out.println( "Selected " + f.getName() );
+            } catch( FileNotFoundException e )
+            {
                 System.out.println( "No file selected" );
             }
-            System.exit( 0 ); // Required to stop AWT thread & shut down.
+            System.exit( 0 ); // Required to stop AWT thread & shut
+                                // down.
         }
     }
 }
