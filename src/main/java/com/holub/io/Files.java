@@ -26,8 +26,8 @@ public class Files
      * 파일을 선택하지 않았을 때 null 값 대신 예외를 던지면, 다음과
      * 같은 방식으로 프로그램을 사용하기 편리한다. <PRE>
      * FileInputStream in = new
-     * FileInputStream( Files.userSelected(
-     * ".", ".txt", "Text File", "Open" ));
+     *     FileInputStream( Files.userSelected(
+     *         ".", ".txt", "Text File", "Open" ));
      * </PRE>
      */
 
